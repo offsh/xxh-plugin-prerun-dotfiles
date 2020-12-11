@@ -1,41 +1,74 @@
-##
-## xonshrc example mostly from awesome xonshrc - https://github.com/anki-code/awesome-xonshrc
-##
+#   ____   __  __ _____ _          _ _    _____             __ _                       _   _------------------
+#  / __ \ / _|/ _/ ____| |        | | |     / ____|           / _(_)                     | | (_)--------------
+# | |  | | |_| || (___ | |__   ___| | |    | |     ___  _ __ | |_ _  __ _ _   _ _ __ __ _| |_ _  ___  _ __----
+# | |  | |  _|  _\___ \| '_ \ / _ \ | |    | |    / _ \| '_ \|  _| |/ _` | | | | '__/ _` | __| |/ _ \| '_ \---
+# | |__| | | | | ____) | | | |  __/ | |    | |___| (_) | | | | | | | (_| | |_| | | | (_| | |_| | (_) | | | |--
+#  \____/|_| |_||_____/|_| |_|\___|_|_|     \_____\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__|_|\___/|_| |_|--
+#                                                                    __/ |
+#                                                                   |___/-------------------------------------
+# ------------------------------------------------------------------------------------------------------------
 
-#
-# Base settings
-#
-if 0:
-    $TITLE='{current_job:{} | }{hostname} {user} {cwd}'
-    $XONSH_SHOW_TRACEBACK = True
-    $FOREIGN_ALIASES_SUPPRESS_SKIP_MESSAGE = True
-    $XONSH_COLOR_STYLE = "paraiso-dark"
-    $COMPLETIONS_CONFIRM = True
+import importlib.util
+import os.path
+import sys
+import random
 
-#
-# shortcut
-#
-if 0:
-    aliases['-'] = 'cd -'
-    aliases['..'] = 'cd ..'
 
-#
-# ll is ls: colored, columnar, directories first
-#
-if 0:
-    def _ll(args):
-         with ${...}.swap(LC_COLLATE='C'):
-             ls --group-directories-first -lah --color @(args)
-    aliases['ll'] = _ll
+def random_color(min_val=0, max_val=255):
+    def c(): return random.randint(min_val, max_val)
+    return '#%02X%02X%02X' % (c(), c(), c())
 
-#
-# Using rsync instead of cp to show progress
-#
-if 0:
-    aliases['cp'] = ['rsync', '--progress']
+""" ----------------------------------------------------------------------------------------------------------
+PROMPT POWERLEVEL2 CONFIGURATION: read https://github.com/vaaaaanquish/xontrib-powerline2 for more information
+"""
+$PL_PROMPT = 'who>rtns>short_cwd>branch'
+$PL_RPROMPT = 'virtualenv'  # for no toolbar
+$PL_TOOLBAR = 'time>full_proc>cwd'
+$PL_COLORS = {
+    "who": ("BLACK", random_color(150, 255)),
+    "venv": ("BLACK", "INTENSE_GREEN"),
+    "branch": ("#333"),
+    "cwd": ("WHITE", "#444"),
+    "git_root": ("BLACK", "#00adee"),
+    "git_sub_dir": ("WHITE", "#00adee"),
+    "short_cwd": ("WHITE", "#444"),
+    "full_proc": ("WHITE", "RED", "#444"),
+    "timing": ("WHITE", "#444"),
+    "time": ("BLACK", "#00adee"),
+    "history": ("WHITE", "#333333"),
+    "rtns": ("WHITE", "RED"),
+    "full_rtns": ("WHITE", "RED", "#444"),
+}
 
-#
-# xontribs
-#
-if 0:
-    xontrib load pipeliner output_search argcomplete prompt_bar whole_word_jumping
+""" ----------------------------------------------------------------------------------------------------------
+Xontribs: load Xonsh plugins
+"""
+# Load default xontribs
+for main_xontrib in [
+    'coreutils',
+    'readable-traceback'
+]:
+    xontrib load f"{main_xontrib}"
+
+# Load external xontribs
+for extra_xontrib in [
+    'syslog-shell-profiler',
+    'powerline2',
+]:
+    xontrib load f"{extra_xontrib}" or (pip install f"xontrib-{extra_xontrib}" --quiet and xontrib load f"{extra_xontrib}")
+
+""" ----------------------------------------------------------------------------------------------------------
+Environment Variables
+"""
+
+$PATH.append("~/.local/bin/")
+
+""" ----------------------------------------------------------------------------------------------------------
+Aliases
+"""
+aliases['untar'] = 'tar -zxvf '
+
+""" ----------------------------------------------------------------------------------------------------------
+EXTRA USER CONFIGURATION
+"""
+
