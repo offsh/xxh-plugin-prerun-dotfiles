@@ -43,6 +43,7 @@ Xontribs: load Xonsh plugins
 
 # Load default xontribs
 for main_xontrib in [
+    'coreutils',
     'abbrevs'
 ]:
     xontrib load f"{main_xontrib}"
@@ -56,16 +57,6 @@ for extra_xontrib in [
 ]:
     xontrib load f"{extra_xontrib}"
 
-""" ----------------------------------------------------------------------------------------------------------
-Configuration files
-"""
-
-if(not exists(f"{home}/.config/xxh/config.xxhc")):
-    if not os.path.exists(f"{home}/.config/xxh"):
-        os.makedirs(f"{home}/.config/xxh")
-    url = 'https://raw.githubusercontent.com/offsh/xxh/master/config.xxhc'
-    urllib.request.urlretrieve(url, f"{home}/.config/xxh/config.xxhc")
-
 
 """ ----------------------------------------------------------------------------------------------------------
 Environment Variables
@@ -73,17 +64,6 @@ Environment Variables
 
 $PATH.append("~/.local/bin/")
 
-""" ----------------------------------------------------------------------------------------------------------
-Aliases
-"""
-aliases['-'] = 'cd -'
-aliases['..'] = 'cd ..'
-
-""" ----------------------------------------------------------------------------------------------------------
-Abbrevs
-"""
-
-# TODO
 
 """ ----------------------------------------------------------------------------------------------------------
 Command capture methods
