@@ -43,7 +43,6 @@ Xontribs: load Xonsh plugins
 
 # Load default xontribs
 for main_xontrib in [
-    'coreutils',
     'abbrevs'
 ]:
     xontrib load f"{main_xontrib}"
