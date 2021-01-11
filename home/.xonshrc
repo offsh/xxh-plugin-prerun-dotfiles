@@ -9,53 +9,64 @@
 # ------------------------------------------------------------------------------------------------------------
 
 import importlib.util
+import urllib.request
 import os.path
 import sys
 import random
+from os.path import exists, expanduser
+
+home = expanduser("~")
 
 
-def random_color(min_val=0, max_val=255):
+def random_color(min_val=0, max_val=255, seed=None):
     def c(): return random.randint(min_val, max_val)
+    if seed is not None:
+        random.seed(seed)
     return '#%02X%02X%02X' % (c(), c(), c())
 
 """ ----------------------------------------------------------------------------------------------------------
-PROMPT POWERLEVEL2 CONFIGURATION: read https://github.com/vaaaaanquish/xontrib-powerline2 for more information
+Prompt_bat configuration
 """
-$PL_PROMPT = 'who>rtns>short_cwd>branch'
-$PL_RPROMPT = 'virtualenv'  # for no toolbar
-$PL_TOOLBAR = 'time>full_proc>cwd'
-$PL_COLORS = {
-    "who": ("BLACK", random_color(150, 255)),
-    "venv": ("BLACK", "INTENSE_GREEN"),
-    "branch": ("#333"),
-    "cwd": ("WHITE", "#444"),
-    "git_root": ("BLACK", "#00adee"),
-    "git_sub_dir": ("WHITE", "#00adee"),
-    "short_cwd": ("WHITE", "#444"),
-    "full_proc": ("WHITE", "RED", "#444"),
-    "timing": ("WHITE", "#444"),
-    "time": ("BLACK", "#00adee"),
-    "history": ("WHITE", "#333333"),
-    "rtns": ("WHITE", "RED"),
-    "full_rtns": ("WHITE", "RED", "#444"),
+
+$XONTRIB_PROMPT_BAR_WRAPPERS = {
+    'brackets': lambda v: f'[{v}]',
+    'color': lambda v: '{BOLD_' + random_color(100,250,v) + '}' + v
 }
+
+$XONTRIB_PROMPT_BAR_LEFT = '>> {user#color}{cwd#color}{branch_color}{gitstatus_noc}'
+$XONTRIB_PROMPT_BAR_RIGHT = '{hostname#color}{date_time_tz#section}'
+
 
 """ ----------------------------------------------------------------------------------------------------------
 Xontribs: load Xonsh plugins
 """
+
 # Load default xontribs
 for main_xontrib in [
     'coreutils',
-    'readable-traceback'
+    'abbrevs'
 ]:
     xontrib load f"{main_xontrib}"
 
 # Load external xontribs
 for extra_xontrib in [
+    'readable-traceback',
     'syslog-shell-profiler',
-    'powerline2',
+    'prompt_bar',
+    'ergopack',
 ]:
-    xontrib load f"{extra_xontrib}" or (pip install f"xontrib-{extra_xontrib}" --quiet and xontrib load f"{extra_xontrib}")
+    xontrib load f"{extra_xontrib}"
+
+""" ----------------------------------------------------------------------------------------------------------
+Configuration files
+"""
+
+if(not exists(f"{home}/.config/xxh/config.xxhc")):
+    if not os.path.exists(f"{home}/.config/xxh"):
+        os.makedirs(f"{home}/.config/xxh")
+    url = 'https://raw.githubusercontent.com/offsh/xxh/master/config.xxhc'
+    urllib.request.urlretrieve(url, f"{home}/.config/xxh/config.xxhc")
+
 
 """ ----------------------------------------------------------------------------------------------------------
 Environment Variables
@@ -66,7 +77,25 @@ $PATH.append("~/.local/bin/")
 """ ----------------------------------------------------------------------------------------------------------
 Aliases
 """
-aliases['untar'] = 'tar -zxvf '
+aliases['-'] = 'cd -'
+aliases['..'] = 'cd ..'
+
+""" ----------------------------------------------------------------------------------------------------------
+Abbrevs
+"""
+
+# TODO
+
+""" ----------------------------------------------------------------------------------------------------------
+Command capture methods
+"""
+
+def predict_false(args):
+    """Never say the process is threadable."""
+    return False
+
+__xonsh__.commands_cache.threadable_predictors['xxh'] = predict_false
+
 
 """ ----------------------------------------------------------------------------------------------------------
 EXTRA USER CONFIGURATION
